@@ -1,0 +1,78 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://Audio/Interfase/fone_audio.wav" type="AudioStream" id=1]
+[ext_resource path="res://Audio/Interfase/button_click.wav" type="AudioStream" id=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Control
+
+var audio_mussic_on = true
+var audio_button_on = true
+var audio_bus = load(\"res://Audio/default_bus_layout.tres\")
+
+func _ready():
+	AudioServer.set_bus_layout(load(\"res://Audio/default_bus_layout.tres\"))
+
+func _on_audio_fone_finished():
+	$audio_fone.play()
+	pass # Replace with function body.
+
+func play_audio_button():
+	$audio_button.play()
+
+func onoff_audio_button():
+	if audio_button_on:
+		AudioServer.set_bus_mute(AudioServer.get_bus_index(\"audio\"), true)
+		audio_button_on = false
+	else:
+		AudioServer.set_bus_mute(AudioServer.get_bus_index(\"audio\"), false)
+		audio_button_on = true
+	pass
+	
+func onoff_audio_mussic():
+	if audio_mussic_on:
+		AudioServer.set_bus_mute(AudioServer.get_bus_index(\"mussic\"), true)
+		audio_mussic_on = false
+	else:
+		AudioServer.set_bus_mute(AudioServer.get_bus_index(\"mussic\"), false)
+		audio_mussic_on = true
+	pass
+
+func onoff_audio_mussic_main_menu(vall:bool):
+	if vall:
+		AudioServer.set_bus_mute(AudioServer.get_bus_index(\"mussic_main_menu\"), false)
+	else:
+		AudioServer.set_bus_mute(AudioServer.get_bus_index(\"mussic_main_menu\"), true)
+	pass
+
+func onoff_audio_button_main_menu(vall:bool):
+	if vall:
+		AudioServer.set_bus_mute(AudioServer.get_bus_index(\"button_main_menu\"), false)
+	else:
+		AudioServer.set_bus_mute(AudioServer.get_bus_index(\"button_main_menu\"), true)
+	pass
+	
+	
+	
+	
+	
+	"
+
+[node name="Audio" type="Control"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = 2.0
+margin_bottom = -909.0
+script = SubResource( 1 )
+
+[node name="audio_fone" type="AudioStreamPlayer" parent="."]
+pause_mode = 2
+stream = ExtResource( 1 )
+bus = "mussic_main_menu"
+
+[node name="audio_button" type="AudioStreamPlayer" parent="."]
+pause_mode = 2
+stream = ExtResource( 2 )
+bus = "button_main_menu"
+[connection signal="finished" from="audio_fone" to="." method="_on_audio_fone_finished"]

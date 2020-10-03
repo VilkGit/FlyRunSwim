@@ -1,0 +1,39 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Control
+
+var quantity_req = 0
+var obj_scenn
+var name_func
+
+var url_patch = \"signin\"
+var headers = [
+		\"Content-Type: application/x-www-form-urlencoded\",
+		]
+var body = \"login={login}&password={password}\".format({\"login\":HTTP.login, \"password\":HTTP.password})
+
+	
+func update_key(obj_scenn = null, name_func = \"\"):
+	$HTTP_node.request(HTTP.url(url_patch), headers, false, HTTPClient.METHOD_POST, body)
+	self.obj_scenn = obj_scenn
+	self.name_func = name_func
+
+func _on_HTTP_node_request_completed(result, response_code, headers, body):
+	var text = body.get_string_from_utf8()
+	if text == \"True\":
+		HTTP.key_session = HTTP.search_headers_val_in_arr(\"Key-Session-Server\", headers)
+		if obj_scenn: obj_scenn.call(name_func)
+	elif quantity_req < 5:
+		quantity_req += 1
+		$HTTP_node.request(HTTP.url(self.url_patch), self.headers, false, HTTPClient.METHOD_POST, self.body)
+	else:
+		quantity_req = 0
+		get_tree().change_scene(\"res://Interfaces/Interfases_scenn/Signin.tscn\")"
+
+[node name="HTTPUpdateKey" type="Control"]
+pause_mode = 2
+script = SubResource( 1 )
+
+[node name="HTTP_node" type="HTTPRequest" parent="."]
+[connection signal="request_completed" from="HTTP_node" to="." method="_on_HTTP_node_request_completed"]
